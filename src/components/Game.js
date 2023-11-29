@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Card from './Card'; // Import the Card component
 
 const Game = () => {
@@ -10,15 +10,15 @@ const Game = () => {
     const [gameStatus, setGameStatus] = useState('initial'); // 'initial', 'player-turn', 'dealer-turn', 'ended'
     const [message, setMessage] = useState('');
   
-    const initializeDeck = () => {
+    const initializeDeck = useCallback(() => {
       let newDeck = createDeck();
       newDeck = shuffleDeck(newDeck);
       setDeck(newDeck);
-    };
+    }, []); // Dependencies array is empty as createDeck and shuffleDeck do not change
 
     useEffect(() => {
-        initializeDeck();
-      }, []);  
+      initializeDeck();
+    }, [initializeDeck]);
   
     const createDeck = () => {
       const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
