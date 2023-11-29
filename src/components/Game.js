@@ -10,15 +10,15 @@ const Game = () => {
     const [gameStatus, setGameStatus] = useState('initial'); // 'initial', 'player-turn', 'dealer-turn', 'ended'
     const [message, setMessage] = useState('');
   
-    useEffect(() => {
-      initializeDeck();
-    }, []);
-  
     const initializeDeck = () => {
       let newDeck = createDeck();
       newDeck = shuffleDeck(newDeck);
       setDeck(newDeck);
     };
+
+    useEffect(() => {
+        initializeDeck();
+      }, []);  
   
     const createDeck = () => {
       const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
