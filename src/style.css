@@ -1,0 +1,24 @@
+.card {
+    border: 1px solid #ddd;
+    margin: 5px;
+    padding: 10px;
+    text-align: center;
+    width: 60px; /* Adjust as needed */
+    height: 100px; /* Adjust as needed */
+  }
+  
+  .card .card-value {
+    font-size: 20px;
+  }
+  
+  .card .card-suit {
+    font-size: 40px;
+  }
+  
+  .hearts, .diamonds {
+    color: red;
+  }
+  
+  .clubs, .spades {
+    color: black;
+  }
