@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Card from './Card';
+import backOfCardImage from '../backofcard.jpeg';
 
 const Game = () => {
   const [deckId, setDeckId] = useState('');
@@ -26,19 +27,19 @@ const Game = () => {
     initializeDeck();
   }, [initializeDeck]);
 
-  const drawCard = (count, targetHandSetter) => {
-    axios
-      .get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`)
-      .then(response => {
+  const drawCard = async (count, targetHandSetter) => {
+    try {
+        const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
         const newCards = response.data.cards;
         targetHandSetter(prevHand => [...prevHand, ...newCards]);
-      })
-      .catch(error => {
+    } catch (error) {
         console.error('Error drawing cards:', error);
-      });
-  };
+    }
+};
 
-  const dealCards = () => {
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const dealCards = async () => {
     setPlayerHand([]);
     setDealerHand([]);
     setPlayerScore(0);
@@ -46,27 +47,44 @@ const Game = () => {
     setMessage('');
     setGameStatus('player-turn');
 
-    drawCard(2, setPlayerHand);
-    drawCard(2, setDealerHand);
-  };
+    // Draw the first card for the player
+    await drawCard(1, setPlayerHand);
+    await delay(1000); // wait for 1 second
 
-  const playerHit = async () => {
-    try {
-      const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
-      const newCard = response.data.cards[0];
-  
-      setPlayerHand(prevHand => [...prevHand, newCard]);
-      const newScore = calculateScore([...playerHand, newCard]);
+    // Draw the second card for the player
+    await drawCard(1, setPlayerHand);
+    await delay(1000); // wait for 1 second
+
+    // Draw the initial card for the dealer
+    await drawCard(1, setDealerHand);
+    await delay(1000); // wait for 1 second
+
+    // Draw the second card for the dealer but don't show it
+    // Assuming you have a way to handle the hidden card
+    await drawCard(1, setDealerHand);
+};
+
+const playerHit = async () => {
+  try {
+    const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
+    const newCard = response.data.cards[0];
+
+    setPlayerHand(prevHand => {
+      const updatedHand = [...prevHand, newCard];
+      const newScore = calculateScore(updatedHand);
       setPlayerScore(newScore);
-  
+
       if (newScore > 21) {
         setGameStatus('ended');
         setMessage('Player busts!');
       }
-    } catch (error) {
-      console.error('Error drawing a card:', error);
-    }
-  };
+      
+      return updatedHand;
+    });
+  } catch (error) {
+    console.error('Error drawing a card:', error);
+  }
+};
 
   const playerStand = async () => {
     setGameStatus('dealer-turn');
@@ -77,11 +95,11 @@ const Game = () => {
         const newCard = response.data.cards[0];
         newHand = [...newHand, newCard];
       }
-  
+
       setDealerHand(newHand);
       const newScore = calculateScore(newHand);
       setDealerScore(newScore);
-  
+
       setGameStatus('ended');
       determineWinner(newScore);
     } catch (error) {
@@ -93,12 +111,20 @@ const Game = () => {
     try {
       let newHand = [...dealerHand];
       while (calculateScore(newHand) < 17) {
+        // Adding a delay before drawing a new card
+        await delay(1000);
+  
         const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
         const newCard = response.data.cards[0];
         newHand = [...newHand, newCard];
+  
+        // Update dealer's hand immediately after drawing each card
+        setDealerHand([...newHand]);
+  
+        // Adding another delay after setting the new hand to give a feel of real-time dealing
+        await delay(1000);
       }
   
-      setDealerHand(newHand);
       const newScore = calculateScore(newHand);
       setDealerScore(newScore);
   
@@ -163,37 +189,34 @@ const Game = () => {
   return (
     <div className="container">
       <h1>Blackjack Game</h1>
-      {/* {message && <div className="alert alert-info">{message}</div>} */}
       {gameStatus === 'initial' && (
         <button className="btn btn-primary" onClick={dealCards}>
           Start Game
         </button>
       )}
-      {/* {gameStatus === 'player-turn' && (
-        <>
-          <button className="btn btn-secondary" onClick={playerHit}>
-            Hit
-          </button>
-          <button className="btn btn-secondary" onClick={playerStand}>
-            Stand
-          </button>
-        </>
-      )}
-      {gameStatus === 'ended' && (
-        <button className="btn btn-warning" onClick={resetGame}>
-          Play Again
-        </button>
-      )} */}
       <div className="row mt-3 flex-column">
+        {/* Dealer's Hand */}
         <div className="col">
           <h2>Dealer's Hand</h2>
           <div className="d-flex justify-content-center align-items-center">
-            {dealerHand.map((card, index) => (
+            {/* Always show the first card */}
+            {dealerHand.slice(0, 1).map((card, index) => (
               <Card key={index} card={card} />
             ))}
+            {/* Render the back of a card if it's the player's turn */}
+            {gameStatus === 'player-turn' && (
+              <div className="card">
+                <img src={backOfCardImage} alt="Card Back" />
+              </div>
+            )}
+            {/* If it's not the player's turn, render the second and subsequent cards */}
+            {gameStatus !== 'player-turn' && dealerHand.slice(1).map((card, index) => (
+              <Card key={`dealer-${index}`} card={card} />
+            ))}
           </div>
-          <p>Score: {calculateScore(dealerHand)}</p>
+          <p>Score: {gameStatus === 'player-turn' ? '?' : calculateScore(dealerHand)}</p>
         </div>
+        {/* Player's Hand */}
         <div className="col">
           <h2>Player's Hand</h2>
           <div className="d-flex justify-content-center align-items-center">
@@ -204,6 +227,7 @@ const Game = () => {
           <p>Score: {calculateScore(playerHand)}</p>
         </div>
       </div>
+      {/* Game Controls */}
       {gameStatus === 'player-turn' && (
         <>
           <button className="btn btn-secondary" onClick={playerHit}>
@@ -219,6 +243,7 @@ const Game = () => {
           Play Again
         </button>
       )}
+      {/* Game Messages */}
       {message && <div className="alert alert-info">{message}</div>}
     </div>
   );
