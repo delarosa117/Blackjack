@@ -163,11 +163,47 @@ const Game = () => {
   return (
     <div className="container">
       <h1>Blackjack Game</h1>
+      {/* {message && <div className="alert alert-info">{message}</div>} */}
       {gameStatus === 'initial' && (
         <button className="btn btn-primary" onClick={dealCards}>
           Start Game
         </button>
       )}
+      {/* {gameStatus === 'player-turn' && (
+        <>
+          <button className="btn btn-secondary" onClick={playerHit}>
+            Hit
+          </button>
+          <button className="btn btn-secondary" onClick={playerStand}>
+            Stand
+          </button>
+        </>
+      )}
+      {gameStatus === 'ended' && (
+        <button className="btn btn-warning" onClick={resetGame}>
+          Play Again
+        </button>
+      )} */}
+      <div className="row mt-3 flex-column">
+        <div className="col">
+          <h2>Dealer's Hand</h2>
+          <div className="d-flex justify-content-center align-items-center">
+            {dealerHand.map((card, index) => (
+              <Card key={index} card={card} />
+            ))}
+          </div>
+          <p>Score: {calculateScore(dealerHand)}</p>
+        </div>
+        <div className="col">
+          <h2>Player's Hand</h2>
+          <div className="d-flex justify-content-center align-items-center">
+            {playerHand.map((card, index) => (
+              <Card key={index} card={card} />
+            ))}
+          </div>
+          <p>Score: {calculateScore(playerHand)}</p>
+        </div>
+      </div>
       {gameStatus === 'player-turn' && (
         <>
           <button className="btn btn-secondary" onClick={playerHit}>
@@ -183,26 +219,6 @@ const Game = () => {
           Play Again
         </button>
       )}
-      <div className="row mt-3">
-        <div className="col">
-          <h2>Player's Hand</h2>
-          <div className="d-flex">
-            {playerHand.map((card, index) => (
-              <Card key={index} card={card} />
-            ))}
-          </div>
-          <p>Score: {calculateScore(playerHand)}</p>
-        </div>
-        <div className="col">
-          <h2>Dealer's Hand</h2>
-          <div className="d-flex">
-            {dealerHand.map((card, index) => (
-              <Card key={index} card={card} />
-            ))}
-          </div>
-          <p>Score: {calculateScore(dealerHand)}</p>
-        </div>
-      </div>
       {message && <div className="alert alert-info">{message}</div>}
     </div>
   );
