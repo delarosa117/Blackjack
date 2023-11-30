@@ -3,8 +3,8 @@
     margin: 5px;
     padding: 10px;
     text-align: center;
-    width: 60px; /* Adjust as needed */
-    height: 100px; /* Adjust as needed */
+    width: 200px; /* Adjust as needed */
+    height: auto; /* Adjust as needed */
   }
   
   .card .card-value {
@@ -22,3 +22,39 @@
   .clubs, .spades {
     color: black;
   }
+
+  /* .container {
+
+  }
+
+  .btn {
+
+  }
+
+  .btn-primary {
+
+  }
+
+  .btn-secondary {
+
+  }
+
+  .btn-warning {
+
+  }
+
+  .row {
+
+  }
+
+  .col {
+
+  }
+
+.alert {
+
+}
+
+.alert-info {
+  
+} */
