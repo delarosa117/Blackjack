@@ -29,105 +29,91 @@ const Game = () => {
 
   const drawCard = async (count, targetHandSetter) => {
     try {
-        const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
-        const newCards = response.data.cards;
-        targetHandSetter(prevHand => [...prevHand, ...newCards]);
+      const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
+      const newCards = response.data.cards;
+      targetHandSetter(prevHand => [...prevHand, ...newCards]);
     } catch (error) {
-        console.error('Error drawing cards:', error);
+      console.error('Error drawing cards:', error);
     }
-};
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  };
 
   const dealCards = async () => {
-    setPlayerHand([]);
-    setDealerHand([]);
-    setPlayerScore(0);
-    setDealerScore(0);
-    setMessage('');
-    setGameStatus('player-turn');
-
-    // Draw the first card for the player
-    await drawCard(1, setPlayerHand);
-    await delay(1000); // wait for 1 second
-
-    // Draw the second card for the player
-    await drawCard(1, setPlayerHand);
-    await delay(1000); // wait for 1 second
-
-    // Draw the initial card for the dealer
-    await drawCard(1, setDealerHand);
-    await delay(1000); // wait for 1 second
-
-    // Draw the second card for the dealer but don't show it
-    // Assuming you have a way to handle the hidden card
-    await drawCard(1, setDealerHand);
-};
-
-const playerHit = async () => {
-  try {
-    const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
-    const newCard = response.data.cards[0];
-
-    setPlayerHand(prevHand => {
-      const updatedHand = [...prevHand, newCard];
-      const newScore = calculateScore(updatedHand);
-      setPlayerScore(newScore);
-
-      if (newScore > 21) {
-        setGameStatus('ended');
-        setMessage('Player busts!');
-      }
-      
-      return updatedHand;
-    });
-  } catch (error) {
-    console.error('Error drawing a card:', error);
-  }
-};
-
-  const playerStand = async () => {
-    setGameStatus('dealer-turn');
-    try {
-      let newHand = [...dealerHand];
-      while (calculateScore(newHand) < 17) {
-        const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
-        const newCard = response.data.cards[0];
-        newHand = [...newHand, newCard];
-      }
-
-      setDealerHand(newHand);
-      const newScore = calculateScore(newHand);
-      setDealerScore(newScore);
-
+    // Draw two cards for the player and dealer
+    const playerResponse = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`);
+    const dealerResponse = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`);
+  
+    // Update hands
+    setPlayerHand(playerResponse.data.cards);
+    setDealerHand(dealerResponse.data.cards);
+  
+    // Directly calculate scores from the response
+    const playerInitialScore = calculateScore(playerResponse.data.cards);
+    const dealerInitialScore = calculateScore(dealerResponse.data.cards);
+  
+    // Check for initial 21s
+    if (playerInitialScore === 21 && dealerInitialScore === 21) {
       setGameStatus('ended');
-      determineWinner(newScore);
+      setMessage('Push! Both players have Blackjack!');
+    } else if (playerInitialScore === 21) {
+      setGameStatus('ended');
+      setMessage('Player wins with Blackjack!');
+    } else if (dealerInitialScore === 21) {
+      setDealerScore(dealerInitialScore);
+      setGameStatus('ended');
+      setMessage('Dealer wins with Blackjack!');
+    } else {
+      setGameStatus('player-turn');
+    }
+  };
+
+  const playerHit = async () => {
+    try {
+      const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
+      const newCard = response.data.cards[0];
+
+      setPlayerHand(prevHand => {
+        const updatedHand = [...prevHand, newCard];
+        const newScore = calculateScore(updatedHand);
+        setPlayerScore(newScore);
+
+        if (newScore > 21) {
+          setGameStatus('ended');
+          setMessage('Player busts!');
+        }
+        
+        return updatedHand;
+      });
     } catch (error) {
       console.error('Error drawing a card:', error);
     }
+  };
+
+  const playerStand = async () => {
+    const dealerInitialScore = calculateScore(dealerHand);
+
+    if (dealerInitialScore === 21) {
+      setGameStatus('ended');
+      setMessage('Dealer wins with Blackjack!');
+      return;
+    }
+
+    setGameStatus('dealer-turn');
+    dealerTurn();
   };
 
   const dealerTurn = async () => {
     try {
       let newHand = [...dealerHand];
       while (calculateScore(newHand) < 17) {
-        // Adding a delay before drawing a new card
-        await delay(1000);
-  
         const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
         const newCard = response.data.cards[0];
         newHand = [...newHand, newCard];
-  
-        // Update dealer's hand immediately after drawing each card
         setDealerHand([...newHand]);
-  
-        // Adding another delay after setting the new hand to give a feel of real-time dealing
-        await delay(1000);
       }
-  
+
       const newScore = calculateScore(newHand);
       setDealerScore(newScore);
-  
+
       setGameStatus('ended');
       determineWinner(newScore);
     } catch (error) {
@@ -199,17 +185,14 @@ const playerHit = async () => {
         <div className="col">
           <h2>Dealer's Hand</h2>
           <div className="d-flex justify-content-center align-items-center">
-            {/* Always show the first card */}
             {dealerHand.slice(0, 1).map((card, index) => (
               <Card key={index} card={card} />
             ))}
-            {/* Render the back of a card if it's the player's turn */}
             {gameStatus === 'player-turn' && (
               <div className="card">
                 <img src={backOfCardImage} alt="Card Back" />
               </div>
             )}
-            {/* If it's not the player's turn, render the second and subsequent cards */}
             {gameStatus !== 'player-turn' && dealerHand.slice(1).map((card, index) => (
               <Card key={`dealer-${index}`} card={card} />
             ))}
