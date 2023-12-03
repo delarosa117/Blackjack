@@ -1,43 +1,51 @@
 
+body {
+  background-image: url('/workspaces/blackjack/src/components/casinooo.jpeg'); /* Update the path */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* You can adjust other background properties as needed */
+}
+
 .container {
-  background-color: #f2f2f2;
+  background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  h1 {
+}
+
+h1 {
   font-size: 28px;
   text-align: center;
   margin-bottom: 20px;
-  }
-  
-  .row {
+}
+
+.row {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-  }
-  
-  .col {
+}
+
+.col {
   flex: 1;
   padding: 10px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .card {
+}
+
+.card {
   border: 1px solid #ddd;
   margin: 5px;
   padding: 10px;
   text-align: center;
   width: 150px;
   height: auto;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card img {
+}
+
+.card img {
   max-width: 100%;
   height: auto;
-  }
+}
