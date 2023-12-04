@@ -15,6 +15,7 @@ const Game = () => {
   const [message, setMessage] = useState('');
   const [winsCount, setWinsCount] = useState(0);
   const [lossesCount, setLossesCount] = useState(0);
+  const [isScoreVisible, setIsScoreVisible] = useState(true);
 
   const initializeDeck = useCallback(() => {
     axios
@@ -57,7 +58,7 @@ const Game = () => {
     } else if (playerInitialScore === 21) {
       setWinsCount(winsCount + 1); 
       setGameStatus('ended');
-      setMessage('Player wins with Blackjack!');
+      setMessage('You Got Blackjack!');
     } else if (dealerInitialScore === 21) {
       setDealerScore(dealerInitialScore);
       setLossesCount(lossesCount + 1); 
@@ -80,7 +81,7 @@ const Game = () => {
 
         if (newScore > 21) {
           setGameStatus('ended');
-          setMessage('Player busts!');
+          setMessage('You Busted!');
           setLossesCount(lossesCount + 1); 
         }
         
@@ -144,11 +145,11 @@ const Game = () => {
   
     if (playerCurrentScore > 21) {
       setGameStatus('ended');
-      setMessage('Player busts!');
+      setMessage('You Busted!');
       setLossesCount(lossesCount + 1);
     } else if (dealerScore > 21 || playerCurrentScore > dealerScore) {
       setGameStatus('ended');
-      setMessage('Player wins!');
+      setMessage('You Win!');
       setWinsCount(winsCount + 1); 
     } else if (playerCurrentScore < dealerScore) {
       setGameStatus('ended');
@@ -158,6 +159,10 @@ const Game = () => {
       setGameStatus('ended');
       setMessage('Push!');
     }
+  };
+
+  const toggleScoreVisibility = () => {
+    setIsScoreVisible(!isScoreVisible);
   };
 
   const resetCounters = () => {
@@ -177,20 +182,33 @@ const Game = () => {
 
   return (
     <div className="container">
-      <h1>Blackjack Game</h1>
-      <ScoreCounter 
-        wins={winsCount} 
-        losses={lossesCount} 
-        onReset={resetCounters} 
-      />
+      <h1>SI 579 React Blackjack</h1>
+  
       {gameStatus === 'initial' && (
-        <button className="btn btn-primary" onClick={dealCards}>
-          Start Game
-        </button>
+        <div>
+          <button className="btn btn-primary" onClick={dealCards}>
+            Start Game
+          </button>
+        </div>
       )}
+  
+      <div style={{ marginTop: '10px' }}>
+        <button className="btn btn-info" onClick={toggleScoreVisibility}>
+          {isScoreVisible ? 'Hide Score Counter' : 'Show Score Counter'}
+        </button>
+      </div>
+  
+      {isScoreVisible && (
+        <ScoreCounter 
+          wins={winsCount} 
+          losses={lossesCount} 
+          onReset={resetCounters} 
+        />
+      )}
+  
       <div className="row mt-3 flex-column">
         <div className="col">
-          <h2>Dealer's Hand</h2>
+          <h4>Dealer's Hand</h4>
           <div className="d-flex justify-content-center align-items-center">
             {dealerHand.slice(0, 1).map((card, index) => (
               <Card key={index} card={card} />
@@ -207,7 +225,7 @@ const Game = () => {
           <p>Score: {gameStatus === 'player-turn' ? '?' : calculateScore(dealerHand)}</p>
         </div>
         <div className="col">
-          <h2>Player's Hand</h2>
+          <h4>Player's Hand</h4>
           <div className="d-flex justify-content-center align-items-center">
             {playerHand.map((card, index) => (
               <Card key={index} card={card} />
@@ -216,9 +234,10 @@ const Game = () => {
           <p>Score: {calculateScore(playerHand)}</p>
         </div>
       </div>
+  
       {gameStatus === 'player-turn' && (
         <>
-          <button className="btn btn-secondary" onClick={playerHit}>
+          <button className="btn btn-success" style={{ border: '1px solid black' }} onClick={playerHit}>
             Hit
           </button>
           <button className="btn btn-secondary" onClick={playerStand}>
@@ -226,6 +245,7 @@ const Game = () => {
           </button>
         </>
       )}
+  
       {gameStatus === 'ended' && (
         <Popup message={message} onPlayAgain={resetGame} />
       )}

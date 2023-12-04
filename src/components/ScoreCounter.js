@@ -4,7 +4,7 @@ import Draggable from 'react-draggable';
 const ScoreCounter = ({ wins, losses, onReset }) => {
   return (
     <Draggable>
-      <div className="score-counter">
+      <div className="score-counter" style={{ opacity: 0.9 }}>
         <h3>Wins: {wins}</h3>
         <h3>Losses: {losses}</h3>
         <button className="btn btn-danger" onClick={onReset}>
