@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Card from './Card';
 import backOfCardImage from '../backofcard.jpeg';
+import Popup from './Popup';
 
 const Game = () => {
   const [deckId, setDeckId] = useState('');
@@ -221,13 +222,10 @@ const Game = () => {
           </button>
         </>
       )}
+      {/* Popup for Game Messages */}
       {gameStatus === 'ended' && (
-        <button className="btn btn-warning" onClick={resetGame}>
-          Play Again
-        </button>
+        <Popup message={message} onPlayAgain={resetGame} />
       )}
-      {/* Game Messages */}
-      {message && <div className="alert alert-info">{message}</div>}
     </div>
   );
 };
