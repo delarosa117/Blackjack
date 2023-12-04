@@ -13,4 +13,5 @@ const Popup = ({ message, onPlayAgain }) => {
   );
 };
 
-export default Popup;
+export default Popup
+

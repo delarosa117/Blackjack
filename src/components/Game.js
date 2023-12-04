@@ -3,6 +3,7 @@ import axios from 'axios';
 import Card from './Card';
 import backOfCardImage from '../backofcard.jpeg';
 import Popup from './Popup';
+import ScoreCounter from './ScoreCounter';
 
 const Game = () => {
   const [deckId, setDeckId] = useState('');
@@ -12,6 +13,8 @@ const Game = () => {
   const [dealerScore, setDealerScore] = useState(0);
   const [gameStatus, setGameStatus] = useState('initial');
   const [message, setMessage] = useState('');
+  const [winsCount, setWinsCount] = useState(0);
+  const [lossesCount, setLossesCount] = useState(0);
 
   const initializeDeck = useCallback(() => {
     axios
@@ -39,27 +42,25 @@ const Game = () => {
   };
 
   const dealCards = async () => {
-    // Draw two cards for the player and dealer
     const playerResponse = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`);
     const dealerResponse = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`);
   
-    // Update hands
     setPlayerHand(playerResponse.data.cards);
     setDealerHand(dealerResponse.data.cards);
   
-    // Directly calculate scores from the response
     const playerInitialScore = calculateScore(playerResponse.data.cards);
     const dealerInitialScore = calculateScore(dealerResponse.data.cards);
   
-    // Check for initial 21s
     if (playerInitialScore === 21 && dealerInitialScore === 21) {
       setGameStatus('ended');
       setMessage('Push! Both players have Blackjack!');
     } else if (playerInitialScore === 21) {
+      setWinsCount(winsCount + 1); 
       setGameStatus('ended');
       setMessage('Player wins with Blackjack!');
     } else if (dealerInitialScore === 21) {
       setDealerScore(dealerInitialScore);
+      setLossesCount(lossesCount + 1); 
       setGameStatus('ended');
       setMessage('Dealer wins with Blackjack!');
     } else {
@@ -80,6 +81,7 @@ const Game = () => {
         if (newScore > 21) {
           setGameStatus('ended');
           setMessage('Player busts!');
+          setLossesCount(lossesCount + 1); 
         }
         
         return updatedHand;
@@ -90,14 +92,6 @@ const Game = () => {
   };
 
   const playerStand = async () => {
-    const dealerInitialScore = calculateScore(dealerHand);
-
-    if (dealerInitialScore === 21) {
-      setGameStatus('ended');
-      setMessage('Dealer wins with Blackjack!');
-      return;
-    }
-
     setGameStatus('dealer-turn');
     dealerTurn();
   };
@@ -147,20 +141,28 @@ const Game = () => {
 
   const determineWinner = (dealerScore) => {
     const playerCurrentScore = calculateScore(playerHand);
-
+  
     if (playerCurrentScore > 21) {
       setGameStatus('ended');
       setMessage('Player busts!');
+      setLossesCount(lossesCount + 1);
     } else if (dealerScore > 21 || playerCurrentScore > dealerScore) {
       setGameStatus('ended');
       setMessage('Player wins!');
+      setWinsCount(winsCount + 1); 
     } else if (playerCurrentScore < dealerScore) {
       setGameStatus('ended');
       setMessage('Dealer wins!');
+      setLossesCount(lossesCount + 1); 
     } else {
       setGameStatus('ended');
       setMessage('Push!');
     }
+  };
+
+  const resetCounters = () => {
+    setWinsCount(0);
+    setLossesCount(0);
   };
 
   const resetGame = () => {
@@ -176,13 +178,17 @@ const Game = () => {
   return (
     <div className="container">
       <h1>Blackjack Game</h1>
+      <ScoreCounter 
+        wins={winsCount} 
+        losses={lossesCount} 
+        onReset={resetCounters} 
+      />
       {gameStatus === 'initial' && (
         <button className="btn btn-primary" onClick={dealCards}>
           Start Game
         </button>
       )}
       <div className="row mt-3 flex-column">
-        {/* Dealer's Hand */}
         <div className="col">
           <h2>Dealer's Hand</h2>
           <div className="d-flex justify-content-center align-items-center">
@@ -200,7 +206,6 @@ const Game = () => {
           </div>
           <p>Score: {gameStatus === 'player-turn' ? '?' : calculateScore(dealerHand)}</p>
         </div>
-        {/* Player's Hand */}
         <div className="col">
           <h2>Player's Hand</h2>
           <div className="d-flex justify-content-center align-items-center">
@@ -211,7 +216,6 @@ const Game = () => {
           <p>Score: {calculateScore(playerHand)}</p>
         </div>
       </div>
-      {/* Game Controls */}
       {gameStatus === 'player-turn' && (
         <>
           <button className="btn btn-secondary" onClick={playerHit}>
@@ -222,7 +226,6 @@ const Game = () => {
           </button>
         </>
       )}
-      {/* Popup for Game Messages */}
       {gameStatus === 'ended' && (
         <Popup message={message} onPlayAgain={resetGame} />
       )}
