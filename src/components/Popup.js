@@ -6,24 +6,29 @@ const Popup = ({ message, onPlayAgain }) => {
     top: '20%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    zIndex: '999', // Ensure it's above other elements
+    zIndex: '999',
     background: 'none',
   };
 
   const messageStyle = {
-    background: 'transparent', // Remove the background
+    background: 'transparent',
     opacity: '1',
   };
 
   const buttonStyle = {
     opacity: '1',
-    backgroundColor: 'green', // Change button color to green
+    backgroundColor: 'green',
   };
+
+  // Split the messages 
+  const messageLines = message.split('\n').map((line, index) => (
+    <h2 key={index} style={messageStyle}>{line}</h2>
+  ));
 
   return (
     <div className="popup" style={popupStyle}>
       <div className="popup-content">
-        <h2 style={messageStyle}>{message}</h2>
+        {messageLines}
         <button className="btn btn-success" style={buttonStyle} onClick={onPlayAgain}>
           Play Again
         </button>
