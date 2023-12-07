@@ -1,13 +1,13 @@
 
 body {
-  background-image: url('/workspaces/blackjack/src/components/casinooo.jpeg'); 
+  background-image: url('/workspaces/blackjack/src/components/arcadecasino.jpg'); /* https://www.freepik.com/free-vector/poker-background-with-neon-chip-ace-bet-vector_48197510.htm */
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
 
 .container {
-  background-color: rgba(255, 255, 255, 0.8); 
+  background-color: rgba(255, 255, 255, 0.6); 
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
@@ -24,12 +24,13 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  background-color: rgba(255, 16, 240, 0.5) ;
 }
 
 .col {
   flex: 1;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background */
+  background-color: rgba(255, 255, 255, 0.8); 
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
@@ -100,4 +101,16 @@ h1 {
 .highlight-hand {
   border: 2px solid rgba(26, 126, 9, 0.517); 
   box-shadow: 0 0 10px rgba(26, 126, 9, 0.517); 
+}
+
+.game-instructions {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 500px;
 }

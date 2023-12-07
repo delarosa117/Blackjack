@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios from 'axios'; // https://axios-http.com/docs/intro
 import Card from './Card';
 import backOfCardImage from '../backofcard.jpeg';
 import Popup from './Popup';
 import ScoreCounter from './ScoreCounter';
+import GameInstructions from './GameInstructions';
 
 const Game = () => {
   const [deckId, setDeckId] = useState('');
@@ -21,10 +22,11 @@ const Game = () => {
   const [splitScore, setSplitScore] = useState(0);
   const [isSplitActive, setIsSplitActive] = useState(false);
   const [activeHand, setActiveHand] = useState('original'); 
-
+  const [isInstructionsVisible, setIsInstructionsVisible] = useState(false);
+  
   const initializeDeck = useCallback(() => {
-    axios
-      .get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1')
+    axios // Axios is a JavaScript library for making HTTP requests. We decided to go with Axios to simplify(easier-to-use) the process of making the network requests.
+      .get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1') // https://www.deckofcardsapi.com/
       .then(response => {
         setDeckId(response.data.deck_id);
       })
@@ -253,10 +255,13 @@ const Game = () => {
     setIsSplitAvailable(false);
     setActiveHand('original');
   };
+  const hideInstructions = () => {
+    setIsInstructionsVisible(!isInstructionsVisible);
+  };
 
   return (
     <div className="container">
-      <h1>SI 579 React Blackjack</h1>
+      <h1><strong>SI 579 React Blackjack</strong></h1>
   
       {gameStatus === 'initial' && (
         <div>
@@ -270,10 +275,17 @@ const Game = () => {
         <button className="btn btn-info" onClick={toggleScoreVisibility}>
           {isScoreVisible ? 'Hide Score Counter' : 'Show Score Counter'}
         </button>
+
+        <button className="btn btn-info" onClick={hideInstructions}>
+          {isInstructionsVisible ? 'Hide Instructions' : 'How to Play'}
+        </button>
       </div>
   
       {isScoreVisible && (
         <ScoreCounter wins={winsCount} losses={lossesCount} onReset={resetCounters} />
+      )}
+      {isInstructionsVisible && (
+        <GameInstructions onClose={hideInstructions} />
       )}
   
       <div className="row mt-3">
@@ -338,5 +350,4 @@ const Game = () => {
     </div>
   );
 };
-
 export default Game;

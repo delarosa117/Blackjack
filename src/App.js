@@ -9,6 +9,7 @@ function App() {
   return (
     <div className="App">
       <Game /> 
+      <div><a href="https://www.freepik.com/free-vector/poker-background-with-neon-chip-ace-bet-vector_48197510.htm">Image by upklyak</a></div>
     </div>
   );
 }
